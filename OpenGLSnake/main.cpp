@@ -57,8 +57,16 @@ int main()
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
+		//Input
 		processInput(window);
+
+		//Redering
+		glClearColor(0.19f, 0.3f, 0.47f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Swap buffers
 		glfwSwapBuffers(window);
+		//Check and call events
 		glfwPollEvents();
 	}
 
