@@ -13,12 +13,20 @@ const char *vertexShaderSource = "#version 330 core\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "}\0";
 
-//Fragment Shader
+//Fragment Shader - Orange Color
 const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n\0";
+
+//Fragment Shader - Yellow Color
+const char *fragmentShaderSource1 = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
 "}\n\0";
 
 //Call this function when the window is resized
@@ -87,20 +95,35 @@ int main()
 		std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n" << std::endl;
 	}
 
-	//Compiling fragment shader
+	//Compiling fragment shader 0 
 	unsigned int fragmentShader;
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
-	//Creating program object
+	//Compiling fragment shader 1 
+	unsigned int fragmentShader1;
+	fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+	glCompileShader(fragmentShader1);
+
+	//Creating program object 0
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
-	
-	//Setting shaders to program
+
+	//Creating program object 1
+	unsigned int shaderProgram1;
+	shaderProgram1 = glCreateProgram();
+
+	//Setting shaders to program 0
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
+
+	//Setting shaders to program 1
+	glAttachShader(shaderProgram1, vertexShader);
+	glAttachShader(shaderProgram1, fragmentShader1);
+	glLinkProgram(shaderProgram1);
 
 	//Check if liking shaders to program is ok
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -113,6 +136,7 @@ int main()
 	//Deleting shaders objects after liking them with the program
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+	glDeleteShader(fragmentShader1);
 
 	//Set up vertex data
 
@@ -192,6 +216,7 @@ int main()
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(shaderProgram1);
 		glBindVertexArray(VAO1);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
