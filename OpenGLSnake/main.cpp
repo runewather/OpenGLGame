@@ -117,14 +117,17 @@ int main()
 	//Set up vertex data
 
 	//Rectangle Vertices
-	float triangles[] = {
+	float triangle1[] = {
 		-1.0f, -0.5f, 0.0f,
 		0.0f, -0.5f, 0.0f,
 		-0.5f, 0.5f, 0.0f,
+	};
+
+	float triangle2[] = {
 		0.0f, -0.5f, 0.0f,
 		1.0f, -0.5f, 0.0f,
 		0.5f, 0.5f, 0.0f
-	};
+	};	
 
 	//Rectangle Indicies
 	unsigned int indicies[] = {
@@ -133,6 +136,9 @@ int main()
 	};
 
 	unsigned int VBO, VAO, EBO;
+	unsigned int VBO1, VAO1;
+
+	//VAO 0
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -140,13 +146,30 @@ int main()
 
 	//Send data to VBO buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangles), triangles, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle1), triangle1, GL_STATIC_DRAW);
 
 	//Send data to EBO buffer
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
-	//Set the data format and location
+	//Set data format and location
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//Unbinding
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	//VAO 1
+	glGenVertexArrays(1, &VAO1);
+	glGenBuffers(1, &VBO1);
+	glBindVertexArray(VAO1);
+
+	//Send data to VBO1
+	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle2), triangle2, GL_STATIC_DRAW);
+
+	//Set data format and location
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -168,7 +191,9 @@ int main()
 		//Set shader program
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VAO1);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Swap buffers
