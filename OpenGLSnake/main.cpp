@@ -14,7 +14,7 @@ const char *vertexShaderSource = "#version 330 core\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x + offset.x, -aPos.y, aPos.z, 1.0);\n"
-"	ourColor1 = aColor;\n"
+"	ourColor1 = aPos;\n"
 "}\0";
 
 //Fragment Shader - Orange Color
