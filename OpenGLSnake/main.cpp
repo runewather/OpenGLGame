@@ -9,10 +9,11 @@
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
+"uniform vec4 offset;\n"
 "out vec3 ourColor1;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);\n"
+"   gl_Position = vec4(aPos.x + offset.x, -aPos.y, aPos.z, 1.0);\n"
 "	ourColor1 = aColor;\n"
 "}\0";
 
@@ -208,7 +209,6 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -228,6 +228,8 @@ int main()
 		float greenValue = (sin(time) / 2.0f);
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		int vertexOffsetLocation = glGetUniformLocation(shaderProgram, "offset");
+		glUniform4f(vertexOffsetLocation, -0.25f, 0.0f, 0.0f, 1.0f);		
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
