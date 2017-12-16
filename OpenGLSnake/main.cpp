@@ -8,9 +8,12 @@
 //Vertex Shader
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor1;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"	ourColor1 = aColor;\n"
 "}\0";
 
 //Fragment Shader - Orange Color
@@ -25,9 +28,10 @@ const char *fragmentShaderSource = "#version 330 core\n"
 //Fragment Shader - Yellow Color
 const char *fragmentShaderSource1 = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"in vec3 ourColor1;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+"   FragColor = vec4(ourColor1, 1.0);\n"
 "}\n\0";
 
 //Call this function when the window is resized
@@ -149,9 +153,9 @@ int main()
 	};
 
 	float triangle2[] = {
-		0.0f, -0.5f, 0.0f,
-		1.0f, -0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f
+		0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		1.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};	
 
 	//Rectangle Indicies
@@ -195,8 +199,10 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle2), triangle2, GL_STATIC_DRAW);
 
 	//Set data format and location
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	//Unbinding
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
