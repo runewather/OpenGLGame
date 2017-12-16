@@ -16,9 +16,10 @@ const char *vertexShaderSource = "#version 330 core\n"
 //Fragment Shader - Orange Color
 const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"   FragColor = ourColor;\n"
 "}\n\0";
 
 //Fragment Shader - Yellow Color
@@ -201,6 +202,7 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -213,7 +215,14 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set shader program
-		glUseProgram(shaderProgram);
+		glUseProgram(shaderProgram);	
+
+		//Setting fragment shader parameters
+		float time = glfwGetTime();
+		float greenValue = (sin(time) / 2.0f);
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glUseProgram(shaderProgram1);
