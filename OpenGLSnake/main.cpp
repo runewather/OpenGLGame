@@ -169,8 +169,8 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
@@ -215,10 +215,10 @@ int main()
 
 	//Rectangle Vertices
 	float rectangle[] = {
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f
+		-1.0f, -1.0f, 0.0f, 0.4f, 0.4f,
+		-1.0f,  1.0f, 0.0f, 0.4f, 0.6f,
+		 1.0f, -1.0f, 0.0f, 0.8f, 0.4f, 
+		 1.0f,  1.0f, 0.0f, 0.8f, 0.6f
 	};
 
 	//Texture coords
