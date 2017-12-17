@@ -30,7 +30,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "uniform sampler2D ourTexture1;\n"
 "void main()\n"
 "{\n"
-"   FragColor = mix(texture(ourTexture, TexCoord).rgba, texture(ourTexture1, vec2(TexCoord.x * -1, TexCoord.y)).rgba, vec4(texture(ourTexture, TexCoord)).a * 0.2);\n"
+"   FragColor = mix(texture(ourTexture, TexCoord * 2).rgba, texture(ourTexture1, TexCoord * 2).rgba, vec4(texture(ourTexture, TexCoord)).a * 0.2);\n"
 "   //FragColor = texture(ourTexture1, TexCoord);\n"
 "}\n\0";
 
