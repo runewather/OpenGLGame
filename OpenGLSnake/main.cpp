@@ -27,9 +27,11 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "in vec2 TexCoord;\n"
 "uniform sampler2D ourTexture;\n"
+"uniform sampler2D ourTexture1;\n"
 "void main()\n"
 "{\n"
-"   FragColor = texture(ourTexture, TexCoord);\n"
+"   FragColor = mix(texture(ourTexture, TexCoord).rgba, texture(ourTexture1, vec2(TexCoord.x * -1, TexCoord.y)).rgba, vec4(texture(ourTexture, TexCoord)).a * 0.2);\n"
+"   //FragColor = texture(ourTexture1, TexCoord);\n"
 "}\n\0";
 
 //Fragment Shader - Yellow Color
@@ -150,7 +152,7 @@ int main()
 	glDeleteShader(fragmentShader);
 	//glDeleteShader(fragmentShader1);
 
-	//Load texture
+	//Load texture 0 
 	int textureWidth;
 	int textureHeight;
 	int nrChannels;
@@ -167,11 +169,34 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+
+	//Load texture 1
+	int texture1Width;
+	int texture1Height;
+	int nrChannels1;
+	unsigned char *data1 = stbi_load("Textures/awesomeface.png", &texture1Width, &texture1Height, &nrChannels1, 0);
+	if (!data)
+	{
+		std::cout << "ERROR: FAILED TO LOAD TEXTURE" << std::endl;
+		return 0;
+	}
+
+	//Generate Texture 2
+	unsigned int texture1;
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture1Width, texture1Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data1);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data1);
 
 	//Set up vertex data
 
@@ -266,18 +291,27 @@ int main()
 		glClearColor(0.19f, 0.3f, 0.47f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		//Bind Textures
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		int textureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
+		int texture1Location = glGetUniformLocation(shaderProgram, "ourTexture1");
+		glUniform1i(textureLocation, 0);
+		glUniform1i(texture1Location, 1);
+
 		//Set shader program
 		glUseProgram(shaderProgram);	
 
 		//Setting fragment shader parameters
 		float time = glfwGetTime();
-		float greenValue = (sin(time) / 2.0f);
+		float greenValue = (sin(time) / 2.0f);		
 		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		//int vertexOffsetLocation = glGetUniformLocation(shaderProgram, "offset");
 		//glUniform4f(vertexOffsetLocation, -0.25f, 0.0f, 0.0f, 1.0f);		
-
-		glBindTexture(GL_TEXTURE_2D, texture);
+				
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glUseProgram(shaderProgram1);
