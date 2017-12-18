@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "glm\glm.hpp"
+#include "glm\gtc\matrix_transform.hpp"
+#include "glm\gtc\type_ptr.hpp"
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -12,13 +15,13 @@ const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
 "layout (location = 2) in vec2 aTexCoord;\n"
-"uniform vec4 offset;\n"
+"uniform mat4 trans;\n"
 "out vec3 ourColor1;\n"
 "out vec2 TexCoord;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);\n"
-"	ourColor1 = aPos;\n"
+"   gl_Position = trans * vec4(aPos, 1.0);\n"
+"	//ourColor1 = aPos;\n"
 "	TexCoord = aTexCoord;\n"
 "}\0";
 
@@ -26,11 +29,12 @@ const char *vertexShaderSource = "#version 330 core\n"
 const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "in vec2 TexCoord;\n"
+"uniform float visible_param;\n"
 "uniform sampler2D ourTexture;\n"
 "uniform sampler2D ourTexture1;\n"
 "void main()\n"
 "{\n"
-"   FragColor = mix(texture(ourTexture, TexCoord * 2).rgba, texture(ourTexture1, TexCoord * 2).rgba, vec4(texture(ourTexture, TexCoord)).a * 0.2);\n"
+"   FragColor = mix(texture(ourTexture, TexCoord * 2).rgba, texture(ourTexture1, TexCoord * 2).rgba, vec4(texture(ourTexture, TexCoord)).a * visible_param);\n"
 "   //FragColor = texture(ourTexture1, TexCoord);\n"
 "}\n\0";
 
@@ -43,10 +47,27 @@ const char *fragmentShaderSource1 = "#version 330 core\n"
 "   FragColor = vec4(ourColor1, 1.0);\n"
 "}\n\0";
 
+//Visible var
+float visibleParam = 0.0f;
+
 //Call this function when the window is resized
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+//Clamp function
+float Clamp(float min, float max, float value)
+{
+	if (value < min)
+	{
+		return min;
+	}
+	if (value > max)
+	{
+		return max;
+	}
+	return value;
 }
 
 //Process Inputs
@@ -55,6 +76,16 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		visibleParam += 0.0001f;
+		visibleParam = Clamp(0.0f, 1.0f, visibleParam);
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		visibleParam -= 0.0001f;
+		visibleParam = Clamp(0.0f, 1.0f, visibleParam);
 	}
 }
 
@@ -67,6 +98,9 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
+	//Testing tranformation
+	
+
 	//Create Window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
@@ -169,8 +203,8 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
@@ -215,10 +249,10 @@ int main()
 
 	//Rectangle Vertices
 	float rectangle[] = {
-		-1.0f, -1.0f, 0.0f, 0.4f, 0.4f,
-		-1.0f,  1.0f, 0.0f, 0.4f, 0.6f,
-		 1.0f, -1.0f, 0.0f, 0.8f, 0.4f, 
-		 1.0f,  1.0f, 0.0f, 0.8f, 0.6f
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f
 	};
 
 	//Texture coords
@@ -279,7 +313,7 @@ int main()
 	//Unbinding
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
+		
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -296,13 +330,24 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture1);
+
+		//Transformations
+		glm::mat4 trans;
+		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+
 		int textureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
 		int texture1Location = glGetUniformLocation(shaderProgram, "ourTexture1");
+		int visibleParamLocation = glGetUniformLocation(shaderProgram, "visible_param");				
 		glUniform1i(textureLocation, 0);
 		glUniform1i(texture1Location, 1);
+		glUniform1f(visibleParamLocation, visibleParam);
 
 		//Set shader program
 		glUseProgram(shaderProgram);	
+		unsigned int transformMatLocation = glGetUniformLocation(shaderProgram, "trans");
+		glUniformMatrix4fv(transformMatLocation, 1, GL_FALSE, glm::value_ptr(trans));		
 
 		//Setting fragment shader parameters
 		float time = glfwGetTime();
