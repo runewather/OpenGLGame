@@ -332,7 +332,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		//Transformations
-		glm::mat4 trans;
+		glm::mat4 trans, trans1;
 		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
 		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));		
@@ -362,6 +362,11 @@ int main()
 		//glUseProgram(shaderProgram1);
 		//glBindVertexArray(VAO1);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans1 = glm::translate(trans1, glm::vec3(-0.5f, 0.5f, 0.0f));
+		trans1 = glm::scale(trans1, glm::vec3(0.5 * sinf(time), 0.5 * sinf(time), 0.5 * sinf(time)));
+		glUniformMatrix4fv(transformMatLocation, 1, GL_FALSE, glm::value_ptr(trans1));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Swap buffers
