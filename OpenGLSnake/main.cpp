@@ -334,8 +334,8 @@ int main()
 		//Transformations
 		glm::mat4 trans;
 		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
 		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));		
 
 		int textureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
 		int texture1Location = glGetUniformLocation(shaderProgram, "ourTexture1");
