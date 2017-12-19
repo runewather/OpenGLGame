@@ -388,6 +388,10 @@ int main()
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
 
+	//Rotate over time models
+	int index = 0;
+	glm::mat4 rotateOverTime[3];
+
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -441,12 +445,20 @@ int main()
 		{
 			glm::mat4 model;
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
+			float angle = 0.0f;
+			if (i % 3 == 0)
+			{
+				angle = 20.0f * i * glfwGetTime();
+			}
+			else
+			{
+				angle = 25.0f * i;
+			}			
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
-
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+		
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
