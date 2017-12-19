@@ -15,12 +15,14 @@ const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
 "layout (location = 2) in vec2 aTexCoord;\n"
-"uniform mat4 trans;\n"
+"uniform mat4 model;\n"
+"uniform mat4 view;\n"
+"uniform mat4 projection;\n"
 "out vec3 ourColor1;\n"
 "out vec2 TexCoord;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = trans * vec4(aPos, 1.0);\n"
+"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 "	//ourColor1 = aPos;\n"
 "	TexCoord = aTexCoord;\n"
 "}\0";
@@ -313,7 +315,20 @@ int main()
 	//Unbinding
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-		
+	
+	//Transformations
+	//Model
+	glm::mat4 model;
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	//View
+	glm::mat4 view;
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	//Projection
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
+
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -332,10 +347,11 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		//Transformations
-		glm::mat4 trans, trans1;
-		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));		
+		float time = glfwGetTime();
+		int modelLocation = glGetUniformLocation(shaderProgram, "model");
+		int viewLocation = glGetUniformLocation(shaderProgram, "view");
+		int projectionLocation = glGetUniformLocation(shaderProgram, "projection");
+		model = glm::rotate(model, glm::radians(0.01f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 		int textureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
 		int texture1Location = glGetUniformLocation(shaderProgram, "ourTexture1");
@@ -347,10 +363,11 @@ int main()
 		//Set shader program
 		glUseProgram(shaderProgram);	
 		unsigned int transformMatLocation = glGetUniformLocation(shaderProgram, "trans");
-		glUniformMatrix4fv(transformMatLocation, 1, GL_FALSE, glm::value_ptr(trans));		
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));		
+		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
-		//Setting fragment shader parameters
-		float time = glfwGetTime();
+		//Setting fragment shader parameters		
 		float greenValue = (sin(time) / 2.0f);		
 		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
@@ -362,11 +379,6 @@ int main()
 		//glUseProgram(shaderProgram1);
 		//glBindVertexArray(VAO1);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		trans1 = glm::translate(trans1, glm::vec3(-0.5f, 0.5f, 0.0f));
-		trans1 = glm::scale(trans1, glm::vec3(0.5 * sinf(time), 0.5 * sinf(time), 0.5 * sinf(time)));
-		glUniformMatrix4fv(transformMatLocation, 1, GL_FALSE, glm::value_ptr(trans1));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Swap buffers
