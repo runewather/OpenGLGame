@@ -99,10 +99,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
-	//Testing tranformation
-	
-
+		
 	//Create Window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
@@ -114,7 +111,7 @@ int main()
 	
 	//Set the window to context
 	glfwMakeContextCurrent(window);
-	
+			
 	//Init GLAD
 	if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
 	{
@@ -124,6 +121,9 @@ int main()
 	
 	//Set Viewport
 	glViewport(0, 0, WIDTH, HEIGHT);
+
+	//Enable z-buffer
+	glEnable(GL_DEPTH_TEST);
 
 	//Set callback function to adjust screen when resized
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -364,7 +364,7 @@ int main()
 	//Transformations
 	//Model
 	glm::mat4 model;
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.6f, 0.2f));
 
 	//View
 	glm::mat4 view;
@@ -383,7 +383,7 @@ int main()
 		//Redering
 		//Clear Screen
 		glClearColor(0.19f, 0.3f, 0.47f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Bind Textures
 		glActiveTexture(GL_TEXTURE0);
