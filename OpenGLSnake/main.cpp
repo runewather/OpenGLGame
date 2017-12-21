@@ -62,6 +62,13 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+//Mouse variables
+float lastX = WIDTH / 2;
+float lastY = HEIGHT / 2;
+float yaw = -90.0f;
+float pitch = 0.0f;
+bool firstMouse = true;
+
 //Call this function when the window is resized
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -117,6 +124,43 @@ void processInput(GLFWwindow *window)
 	}
 }
 
+void mouse_callback(GLFWwindow *window, double xPos, double yPos) 
+{
+	if (firstMouse)
+	{
+		lastX = xPos;
+		lastY = yPos;
+		firstMouse = false;
+	}
+
+	float xoffset = xPos - lastX;
+	float yoffset = lastY - yPos;
+	lastX = xPos;
+	lastY = yPos;
+
+	float sensitivity = 0.5f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f)
+	{
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f)
+	{
+		pitch = -89.0f;
+	}
+	
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+}
+
 int main()
 {
 	//Init GLFW
@@ -137,6 +181,12 @@ int main()
 	
 	//Set the window to context
 	glfwMakeContextCurrent(window);
+
+	//Enable mouse input
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+	//Set mouse callback function
+	glfwSetCursorPosCallback(window, mouse_callback);
 			
 	//Init GLAD
 	if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -423,6 +473,7 @@ int main()
 
 		//Input
 		processInput(window);
+
 
 		//Redering
 		//Clear Screen
