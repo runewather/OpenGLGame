@@ -57,6 +57,7 @@ float deltaTime = 0.0f;
 float lastFrameTime = 0.0f;
 
 //Camera walk around
+float cameraFov = 45.0f;
 float cameraSpeed = 0.5f;
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -161,6 +162,24 @@ void mouse_callback(GLFWwindow *window, double xPos, double yPos)
 	cameraFront = glm::normalize(front);
 }
 
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+	if (cameraFov >= 1.0f && cameraFov <= 45.0f)
+	{
+		cameraFov -= yoffset;
+		std::cout << cameraFov << std::endl;
+		std::cout << yoffset << std::endl;
+	}
+	if (cameraFov <= 1.0f)
+	{
+		cameraFov = 1.0f;
+	}
+	if (cameraFov >= 45.0f)
+	{
+		cameraFov = 45.0f;
+	}	
+}
+
 int main()
 {
 	//Init GLFW
@@ -187,6 +206,9 @@ int main()
 
 	//Set mouse callback function
 	glfwSetCursorPosCallback(window, mouse_callback);
+
+	//Set scroll callback function
+	glfwSetScrollCallback(window, scroll_callback);
 			
 	//Init GLAD
 	if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -461,7 +483,7 @@ int main()
 	
 	//Projection
 	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
+	
 
 	//Main loop
 	while (!glfwWindowShouldClose(window))
@@ -493,6 +515,7 @@ int main()
 		int viewLocation = glGetUniformLocation(shaderProgram, "view");
 		int projectionLocation = glGetUniformLocation(shaderProgram, "projection");
 		model = glm::rotate(model, glm::radians(0.01f), glm::vec3(1.0f, 0.0f, 0.0f));
+		projection = glm::perspective(glm::radians(cameraFov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
 
 		int textureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
 		int texture1Location = glGetUniformLocation(shaderProgram, "ourTexture1");
