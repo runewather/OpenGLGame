@@ -123,6 +123,7 @@ void processInput(GLFWwindow *window)
 	{
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
 	}
+	cameraPos.y = 0.0f;
 }
 
 void mouse_callback(GLFWwindow *window, double xPos, double yPos) 
