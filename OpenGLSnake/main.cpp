@@ -52,6 +52,16 @@ const char *fragmentShaderSource1 = "#version 330 core\n"
 //Visible var
 float visibleParam = 0.0f;
 
+//Delta Time
+float deltaTime = 0.0f;
+float lastFrameTime = 0.0f;
+
+//Camera walk around
+float cameraSpeed = 0.5f;
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 //Call this function when the window is resized
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -88,6 +98,22 @@ void processInput(GLFWwindow *window)
 	{
 		visibleParam -= 0.0001f;
 		visibleParam = Clamp(0.0f, 1.0f, visibleParam);
+	}
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		cameraPos += cameraFront * cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		cameraPos -= cameraFront * cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
 	}
 }
 
@@ -387,13 +413,14 @@ int main()
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
 
-	//Rotate over time models
-	int index = 0;
-	glm::mat4 rotateOverTime[3];
-
 	//Main loop
 	while (!glfwWindowShouldClose(window))
 	{
+		//Calculate delta time
+		float currentFrameTime = glfwGetTime();
+		deltaTime = currentFrameTime - lastFrameTime;
+		lastFrameTime = currentFrameTime;
+
 		//Input
 		processInput(window);
 
@@ -409,11 +436,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		//Transformations
-		float time = glfwGetTime();
-		float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
-		view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		float time = glfwGetTime();		
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		int modelLocation = glGetUniformLocation(shaderProgram, "model");
 		int viewLocation = glGetUniformLocation(shaderProgram, "view");
 		int projectionLocation = glGetUniformLocation(shaderProgram, "projection");
