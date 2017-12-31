@@ -1,44 +1,21 @@
 #include "Game.h"
 
-void Game::Init()
+
+glm::ivec2 Game::GetWindowDimension()
 {
-	//Init GLFW
-	glfwInit();
-	//Set OpenGL version
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//Create Window
-	this->window = glfwCreateWindow(window_dimension.x, window_dimension.y, window_name.c_str(), NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "ERROR: FAILED TO CREATE WINDOW" << std::endl;
-		glfwTerminate();
-		return;
-	}
-	//Set context to window
-	glfwMakeContextCurrent(this->window);
-	//Set resize window callback function
-	glfwSetFramebufferSizeCallback(this->window, this->WindowResize);
-	//Init GLAD
-	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-	{
-		std::cout << "ERROR: FAILED TO INITIALIZE GLAD" << std::endl;
-	}
-	//Set Viewport
-	glViewport(0, 0, this->window_dimension.x, this->window_dimension.y);
-	//Enable z-buffer
-	glEnable(GL_DEPTH_TEST);
-	//Init time vars
-	this->delta_time = 0.0f;
-	this->last_frame_time = 0.0f;
-	//init Game Loop
-	this->GameLoop();
+	GLint height, width;
+	glfwGetWindowSize(window_, &width, &height);
+	return glm::ivec2(width, height);
 }
 
-void Game::WindowResize(GLFWwindow* window, int width, int height)
+void Game::WindowResizeCallback(GLFWwindow *window, GLint width, GLint height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void Game::ProcessInput(GLFWwindow *window)
+{
+	player->ProcessInput(window);
 }
 
 void Game::Update(float dt)
@@ -46,42 +23,61 @@ void Game::Update(float dt)
 
 }
 
-void Game::Processinput(float dt)
+void Game::Draw()
 {
-	if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS)
+	player->Draw();
+}
+
+int Game::GameLoop()
+{
+	while (!glfwWindowShouldClose(window_))
 	{
-		std::cout << "DELTA TIME: " << dt << std::endl;
+		ProcessInput(window_);
+		Update(0.5f);
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		Draw();
+				
+		glfwSwapBuffers(window_);
+		glfwPollEvents();
 	}
+	return 0;
 }
 
-void Game::GameLoop()
+Game::Game(const char *title, GLint width, GLint height) 
 {
-	while (!glfwWindowShouldClose(this->window))
+	Init(title, width, height);
+}
+
+int Game::Init(const char *title, GLint width, GLint height)
+{
+	//Init GLFW
+	glfwInit();
+	//OpenGL settings
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//Create window
+	window_ = glfwCreateWindow(width, height, title, NULL, NULL);
+	if (!window_)
 	{
-		//Calculate delta time
-		float current_time = glfwGetTime();
-		this->delta_time = current_time - last_frame_time;
-		last_frame_time = current_time;
-		//Process input
-		this->Processinput(this->delta_time);
-		//Update Entities
-		this->Update(this->delta_time);
-		//Draw Entities
-		//DRAW
-		glfwSwapBuffers(window);
-		glfwPollEvents();		
+		std::cout << "ERROR: FAILED TO CREATE WINDOW" << std::endl;
+		glfwTerminate();
+		return -1;
 	}
-}
-
-Game::Game(std::string w_name, int width, int height)
-{
-	this->window_name = w_name;
-	this->window_dimension.x = width;
-	this->window_dimension.y = height;
-	Init();
-}
-
-
-Game::~Game()
-{
+	//Set window context
+	glfwMakeContextCurrent(window_);
+	//Set window resize callback function
+	glfwSetFramebufferSizeCallback(window_, WindowResizeCallback);
+	//Init GLAD
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+	player = new Player("Player");
+	GameLoop();
+	return 0;
 }
